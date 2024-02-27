@@ -1,5 +1,7 @@
 Steps:
 
+Run test.rb to ensure that everything is wired correctly. 
+
 Execute the setup.sh script to install dependencies and make the necessary scripts executable.
 
 Run the controller_monitor.sh script to continuously monitor for the PS4 controller and launch the Ruby script when detected.
