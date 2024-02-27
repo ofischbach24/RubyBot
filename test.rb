@@ -1,64 +1,53 @@
-require 'pi_piper'
-require 'adafruit/pwm'
+# Assuming you are using the WiringPi library for Ruby
+require 'wiringpi'
 
-# Initialize the PWM driver
-pwm = Adafruit::PWM.new
+# Define GPIO pins
+pwm_pin = 18  # Replace with your actual PWM pin number
+dir_pin = 17  # Replace with your actual DIR pin number
 
-# Specify the PWM channels for your motors
-pwm_channel_A = 0  # Replace with the correct PWM channel for your setup
-pwm_channel_B = 1  # Replace with the correct PWM channel for your setup
+# Set up WiringPi
+gpio = WiringPi::GPIO.new
 
-# Deadzone threshold
-deadzone_threshold = 10
+# Initialize PWM on the specified pin
+gpio.mode(pwm_pin, PWM_OUTPUT)
 
 # Function to control the motor
-def control_motor(pwm, channel, speed)
-  # Map the speed value to PWM duty cycle (0 to 1)
-  pwm.set_pwm(channel, 0, (speed / 255.0) * 4095)
+def control_motor(speed)
+  speed = [speed.abs, 255].min  # Limit speed to a maximum of 255
+  gpio.pwmWrite(pwm_pin, speed)  # Set PWM duty cycle (0 to 255) for speed
+
+  if speed > 0
+    gpio.digitalWrite(dir_pin, HIGH)  # Set direction (HIGH for forward)
+  else
+    gpio.digitalWrite(dir_pin, LOW)   # Set direction (LOW for backward)
+  end
 end
 
 # Function to stop the motor
-def stop_motor(pwm, channel)
-  pwm.set_pwm(channel, 0, 0)
+def stop_motor
+  gpio.pwmWrite(pwm_pin, 0)  # Set duty cycle to 0 to stop the motor
 end
 
-# Find the most recently modified event device in /dev/input/
-default_event_device = Dir["/dev/input/event*"].grep(/event\d+/).max_by { |e| File.mtime(e) }
+# Run the motor forward for a brief period
+forward_speed = 100  # Adjust speed as needed (0 to 255)
 
-# Get the event device path from command-line arguments or use the default
-event_device_path = ARGV[0] || default_event_device
-event_device = Evdev::Device.new(event_device_path)
+puts "Running the motor forward..."
 
-puts "Listening for controller events on #{event_device_path}..."
+control_motor(forward_speed)
 
-# Main loop to read controller events
-loop do
-  begin
-    event = event_device.read_one
-    next unless event
+# Run for 5 seconds (adjust as needed)
+sleep(5)
 
-    case event.type
-    when :EV_ABS
-      case event.code
-      when :ABS_X
-        x_axis_value = event.value
-        speed = 0
+# Run the motor backward for a brief period
+backward_speed = -100  # Adjust speed as needed (-255 to 0)
 
-        # Apply deadzone
-        if x_axis_value.abs > deadzone_threshold
-          speed = x_axis_value / 128 - 128  # Map the X-axis value to motor speed (-128 to 127)
-        end
+puts "Running the motor backward..."
 
-        control_motor(pwm, pwm_channel_A, speed)
-      end
-    when :EV_KEY
-      case event.code
-      when :BTN_START
-        # Stop the motor when the Start button is pressed
-        stop_motor(pwm, pwm_channel_A)
-      end
-    end
-  rescue StandardError => e
-    puts "Error reading event: #{e.message}"
-  end
-end
+control_motor(backward_speed)
+
+# Run for 5 seconds (adjust as needed)
+sleep(5)
+
+puts "Stopping the motor..."
+
+stop_motor
