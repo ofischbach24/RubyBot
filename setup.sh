@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install required Ruby gems
-gem install evdev pi_piper
+gem install evdev pi_piper i2c
 
 # Make the main Ruby script executable
 chmod +x app.rb
