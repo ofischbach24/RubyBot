@@ -5,7 +5,7 @@ while true; do
   
   if [ -n "$controller_event" ]; then
     echo "PS4 controller detected on /dev/input/$controller_event"
-    ruby app.rb "$controller_event"
+    sudo ruby app.rb "/dev/input/$controller_event"
     sleep 1  # Adjust sleep time as needed to avoid rapid re-checking
   else
     sleep 1
