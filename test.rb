@@ -6,10 +6,10 @@ require 'i2c'
 
 # Motor controller configuration
 DIR_PIN = 7   # Direction pin
-PWM_PIN = 12  # PWM pin (using physical pin number for :board)
+PWM_PIN = 1  # PWM pin (using physical pin number for :board)
 
 # I/O Expander configuration
-I2C_ADDRESS = 0x20  # Replace with the I2C address of your I/O expander
+I2C_ADDRESS = 0x18  # Replace with the I2C address of your I/O expander
 
 # Initialize GPIO with :board numbering
 RPi::GPIO.set_numbering :board
