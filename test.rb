@@ -8,8 +8,8 @@ i2c_address = 0x20
 i2c = I2C.create('/dev/i2c-1')
 
 # Define GPIO pins
-pwm_pin = PiPiper::Pin.new(pin: 18, direction: :out)  # Replace with your actual PWM pin number
-dir_pin = PiPiper::Pin.new(pin: 17, direction: :out)  # Replace with your actual DIR pin number
+pwm_pin = PiPiper::Pin.new(pin: 1, direction: :out)  # Replace with your actual PWM pin number
+dir_pin = PiPiper::Pin.new(pin: 7, direction: :out)  # Replace with your actual DIR pin number
 
 # Function to control the motor
 def control_motor(pwm_pin, dir_pin, speed)
