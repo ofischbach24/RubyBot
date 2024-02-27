@@ -1,9 +1,16 @@
 require 'evdev'
 require 'pi_piper'
+require 'i2c'
+
+# Specify the I2C address of your GPIO extender
+i2c_address = 0x20
+
+# Initialize I2C communication
+i2c = I2C.create('/dev/i2c-1')
 
 # Define GPIO pins
-pwm_pin = PiPiper::Pin.new(pin: 18, direction: :out)  # Replace with your actual PWM pin number
-dir_pin = PiPiper::Pin.new(pin: 17, direction: :out)  # Replace with your actual DIR pin number
+pwm_pin = PiPiper::Pins::I2C.new(i2c, i2c_address, pin: 18, direction: :out)  # Replace with your actual PWM pin number
+dir_pin = PiPiper::Pins::I2C.new(i2c, i2c_address, pin: 17, direction: :out)  # Replace with your actual DIR pin number
 
 # Deadzone threshold
 deadzone_threshold = 10
