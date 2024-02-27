@@ -19,8 +19,11 @@ def stop_motor(pwm_pin)
   pwm_pin.off
 end
 
-# Get the event device path from command-line arguments or use a default
-event_device_path = ARGV[0] || "/dev/input/eventX"  # Replace with the actual default event device path
+# Find the most recently modified event device in /dev/input/
+default_event_device = Dir["/dev/input/event*"].grep(/event\d+/).max_by { |e| File.mtime(e) }
+
+# Get the event device path from command-line arguments or use the default
+event_device_path = ARGV[0] || default_event_device
 event_device = Evdev::Device.new(event_device_path)
 
 puts "Listening for controller events on #{event_device_path}..."
