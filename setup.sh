@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Check if Ruby is installed
+if ! command -v ruby &> /dev/null; then
+  # Install Ruby (you may customize this based on your system)
+  sudo apt-get update
+  sudo apt-get install -y ruby-full
+fi
+
 # Install required Ruby gems
 sudo gem install evdev pi_piper i2c
 
