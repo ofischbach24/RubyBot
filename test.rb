@@ -1,49 +1,52 @@
 # Install the required gem
-# sudo gem install adafruit-pca9685
+# sudo gem install rpi_gpio
 
-require 'adafruit/pca9685'
+require 'rpi_gpio'
 
-# Specify the I2C address of the PCA9685 on the PWM/Servo HAT
-i2c_address = 0x40
+# Motor controller configuration
+DIR_PIN = 7   # Direction pin
+PWM_PIN = 12  # PWM pin (using physical pin number for :board)
 
-# Initialize the PCA9685
-pwm = Adafruit::Pca9685.new(i2c_address)
+# Initialize GPIO with :board numbering
+RPi::GPIO.set_numbering :board
+RPi::GPIO.setup DIR_PIN, as: :output
+RPi::GPIO.setup PWM_PIN, as: :output
 
-# Set the PWM frequency (Hz)
-pwm.frequency = 1000
+# Initialize PWM for the PWM_PIN
+pwm = RPi::GPIO::PWM.new(PWM_PIN, 1000)  # 1000 Hz PWM frequency
 
-# Define the PWM and DIR channels (replace these with the actual channels you are using)
-pwm_channel = 0
-dir_channel = 1
+# Function to move the motor
+def move_motor(direction, pwm)
+  # Set motor direction
+  RPi::GPIO.set_low DIR_PIN if direction == :forward
+  RPi::GPIO.set_high DIR_PIN if direction == :backward
 
-# Function to control the motor using PCA9685
-def control_motor_pca9685(pwm, pwm_channel, speed)
-  # Set direction (1 for forward, 0 for backward)
-  pwm[dir_channel] = speed > 0 ? 1 : 0
-
-  # Set PWM duty cycle (0 to 4095) for speed
-  pwm[pwm_channel] = speed.abs
+  # Start PWM with a duty cycle of 50% (adjust as needed)
+  pwm.start(50)
 end
 
 # Function to stop the motor
-def stop_motor_pca9685(pwm, pwm_channel, dir_channel)
-  # Set both direction and PWM to stop the motor
-  pwm[pwm_channel] = 0
-  pwm[dir_channel] = 0
+def stop_motor(pwm)
+  pwm.stop
+  RPi::GPIO.set_low DIR_PIN  # Ensure the direction pin is low
 end
 
-# Example usage
 begin
-  # Run the motor forward
-  control_motor_pca9685(pwm, pwm_channel, 1000)  # Adjust speed as needed
+  # Move motor forward
+  move_motor(:forward, pwm)
+  puts "Direction: Forward"
+  sleep(2)
 
-  sleep(5)  # Run for 5 seconds (adjust as needed)
+  # Move motor backward
+  move_motor(:backward, pwm)
+  puts "Direction: Backward"
+  sleep(2)
 
-  # Run the motor backward
-  control_motor_pca9685(pwm, pwm_channel, -1000)  # Adjust speed as needed
+  # Stop motor
+  stop_motor(pwm)
+  puts "Direction: Stopped"
 
-  sleep(5)  # Run for 5 seconds (adjust as needed)
-
-  # Stop the motor
-  stop_motor_pca9685(pwm, pwm_channel, dir_channel)
+ensure
+  # Cleanup GPIO
+  RPi::GPIO.reset
 end
