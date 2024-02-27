@@ -42,26 +42,24 @@ loop do
     next unless event
 
     case event.type
-    when :EV_ABS
-      case event.code
-      when :ABS_X
-        x_axis_value = event.value
-        speed = 0
+when :EV_ABS
+  case event.code
+  when :ABS_X
+    x_axis_value = event.value
 
-        # Apply deadzone
-        if x_axis_value.abs > deadzone_threshold
-          speed = x_axis_value / 128 - 128  # Map the X-axis value to motor speed (-128 to 127)
-        end
+    # Map the X-axis value directly to PWM duty cycle (0 to 255)
+    pwm_value = ((x_axis_value + 32768) * 255 / 65535).to_i
 
-        control_motor(pwm_pin, dir_pin, speed)
-      end
-    when :EV_KEY
-      case event.code
-      when :BTN_START
-        # Stop the motor when the Start button is pressed
-        stop_motor(pwm_pin)
-      end
-    end
+    control_motor(pwm_pin, dir_pin, pwm_value)
+  end
+when :EV_KEY
+  case event.code
+  when :BTN_START
+    # Stop the motor when the Start button is pressed
+    stop_motor(pwm_pin)
+  end
+end
+
   rescue StandardError => e
     puts "Error reading event: #{e.message}"
   end
