@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'evdev'
 require 'pi_piper'
 require 'i2c'
