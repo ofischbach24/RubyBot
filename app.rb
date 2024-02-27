@@ -19,11 +19,11 @@ def stop_motor(pwm_pin)
   pwm_pin.off
 end
 
-# Find the event device for the USB-connected PS4 controller
-event_device_path = "/dev/input/" + Dir["/dev/input/event*"].grep(/event\d+/).max_by{ |e| File.mtime(e) }  # Auto-detect event device
+# Get the event device path from command-line arguments or use a default
+event_device_path = ARGV[0] || "/dev/input/eventX"  # Replace with the actual default event device path
 event_device = Evdev::Device.new(event_device_path)
 
-puts "Listening for USB-connected PS4 controller events on #{event_device_path}..."
+puts "Listening for controller events on #{event_device_path}..."
 
 # Main loop to read controller events
 loop do
